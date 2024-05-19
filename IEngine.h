@@ -9,6 +9,7 @@ public:
         : m_engineName{ name }, m_enginePower{ enginePower } {}
 
     const int getPower() const;
+
     const std::string getName() const;
 
     virtual const char* getClassName() const = 0;

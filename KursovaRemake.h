@@ -31,13 +31,15 @@ private slots:
     void saveFileAction();
     void openFileAction();
 
+    void updateTable();
 private:
     EngineMap openFile();
 
     inline EngineType toEngineType(std::string name) const;
 
+    void sortTableByPower();
     void addEngine(const std::string name, EngineType type, unsigned int value);
-    void updateTable();
+    void addElementInTable(IEngine* engine);
 private:
     bool isRunning{ false };
 
