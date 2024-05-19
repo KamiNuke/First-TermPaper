@@ -5,6 +5,6 @@ Initially work had been done in C# with Windows forms HOWEVER I LOST SOURCE CODE
 My task by teacher had been next:
 1. Store objects in array, vector, list doesn't matter it at least should be in runtime
 2. You should have 3 classes and 1 abstract class(interface) and they should be derived by previous class like this IEngine->Engine->ICEngine->JetEngine
-3. Create save/open option (i'll do it later)
+3. Save/Open file options 
 4. Sort table
 5. something else idk
