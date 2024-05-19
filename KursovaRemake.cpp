@@ -53,7 +53,7 @@ void KursovaRemake::pressReady()
     
 
     addEngine(temp, enginetype, (unsigned int)ui.spinBox->value());
-    updateTable();
+    addElementInTable(engines[engines.size() - 1]);
 
     QMessageBox messageBox;
     messageBox.setText("Engine has been created");
@@ -64,9 +64,25 @@ void KursovaRemake::pressReady()
 
 }
 
+//IMPORTANT!!!!!
+//
+//YOU SHOULD DELETE ELEMENT BY DELETING IT IN TABLE
+//
 void KursovaRemake::pressDelete()
 {
+    if (!engines.isEmpty())
+    {
+        if (engines[ui.tableWidget->currentRow()] != nullptr)
+        {
+            delete engines[ui.tableWidget->currentRow()];
+            engines.removeAt(ui.tableWidget->currentRow());
+            engines.shrink_to_fit();
+        }
+    }
+    
     ui.tableWidget->removeRow(ui.tableWidget->currentRow());
+
+    std::cout << engines.size();
 }
 
 void KursovaRemake::radioButtons()
@@ -79,11 +95,53 @@ void KursovaRemake::radioButtons()
     {
         //sort alghoritm should be implemented by yourself
         //By default it does not work
+        sortTableByPower();
+        updateTable();
     }
     else if (ui.radioButton_type->isChecked())
     {
         ui.tableWidget->sortItems(2);
     }
+}
+
+int partition(QList<IEngine*>& arr, int start, int end)
+{
+    int pivot = arr[end]->getPower();
+    int j{ start - 1 };
+
+    for (int i{ start }; i <= end - 1; ++i)
+    {
+        if (arr[i]->getPower() < pivot)
+        {
+            ++j;
+            IEngine* temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
+
+    ++j;
+    IEngine* temp = arr[end];
+    arr[end] = arr[j];
+    arr[j] = temp;
+
+    return j;
+}
+
+void quickSort(QList<IEngine*>& arr, int start, int end)
+{
+    if (end <= start) return;
+
+    int pivot = partition(arr, start, end);
+    quickSort(arr, start, pivot - 1);
+    quickSort(arr, pivot + 1, end);
+}
+
+void KursovaRemake::sortTableByPower()
+{
+    if (engines.isEmpty()) return;
+
+    quickSort(engines, 0, engines.size() - 1);
 }
 
 void KursovaRemake::lineEditCheck()
@@ -110,8 +168,6 @@ void KursovaRemake::sliderChange()
         ui.sleeping_label->setText("Sleeping");
         isRunning = false;
     }
-        
-
 }
 
 void KursovaRemake::saveFileAction()
@@ -148,9 +204,23 @@ void KursovaRemake::openFileAction()
     for (auto const& [key, value] : engine)
     {
         addEngine(key, value.second, value.first);
-        updateTable();
+        addElementInTable(engines[engines.size() - 1]);
     }
 
+}
+
+void KursovaRemake::updateTable()
+{
+    ui.tableWidget->clearContents();
+    for (int i = ui.tableWidget->rowCount(); i >= 0; --i)
+    {
+        ui.tableWidget->removeRow(i);
+    }
+    
+    for (int i = 0; i < engines.size(); ++i)
+    {
+        addElementInTable(engines[i]);
+    }
 }
 
 EngineMap KursovaRemake::openFile()
@@ -228,20 +298,20 @@ void KursovaRemake::addEngine(const std::string name, EngineType type, unsigned 
     }
 }
 
-void KursovaRemake::updateTable()
+void KursovaRemake::addElementInTable(IEngine* engine)
 {
     ui.tableWidget->setRowCount(ui.tableWidget->rowCount() + 1);
 
     ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 0,
-        new QTableWidgetItem(engines[engines.size() - 1]->getName()
+        new QTableWidgetItem(engine->getName()
             .c_str()));
 
     ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 1,
-        new QTableWidgetItem(std::to_string(engines[engines.size() - 1]->getPower())
+        new QTableWidgetItem(std::to_string(engine->getPower())
             .c_str()));
 
     ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 2,
-        new QTableWidgetItem(engines[engines.size() - 1]->getClassName()));
+        new QTableWidgetItem(engine->getClassName()));
 }
 
 void KursovaRemake::pressEngineButton()
