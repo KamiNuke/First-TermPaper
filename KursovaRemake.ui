@@ -17,7 +17,7 @@
    <widget class="QLabel" name="chooseEngine_label">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>30</x>
       <y>10</y>
       <width>301</width>
       <height>61</height>
@@ -36,7 +36,7 @@
    <widget class="QPushButton" name="ICEngine_button">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>190</x>
       <y>70</y>
       <width>131</width>
       <height>51</height>
@@ -55,7 +55,7 @@
    <widget class="QPushButton" name="EngineButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>70</y>
       <width>131</width>
       <height>51</height>
@@ -74,7 +74,7 @@
    <widget class="QPushButton" name="JetEngine_button">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>120</x>
       <y>140</y>
       <width>131</width>
       <height>51</height>
@@ -93,7 +93,7 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>30</x>
       <y>260</y>
       <width>331</width>
       <height>41</height>
@@ -128,7 +128,7 @@
    <widget class="QSpinBox" name="spinBox">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>90</x>
       <y>380</y>
       <width>181</width>
       <height>41</height>
@@ -147,7 +147,7 @@
    <widget class="QLabel" name="enginePower_label">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>50</x>
       <y>320</y>
       <width>271</width>
       <height>51</height>
@@ -308,7 +308,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>120</x>
       <y>440</y>
       <width>131</width>
       <height>51</height>
@@ -394,13 +394,13 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
-    <addaction name="actionNew"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionNew">
+  <action name="actionSave">
    <property name="text">
     <string>Save</string>
    </property>
@@ -411,7 +411,7 @@
     </font>
    </property>
   </action>
-  <action name="actionSave">
+  <action name="actionOpen">
    <property name="text">
     <string>Open</string>
    </property>

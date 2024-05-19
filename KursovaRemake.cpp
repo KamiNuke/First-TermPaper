@@ -7,11 +7,14 @@
 #include "Engine.h"
 #include "ICEngine.h"
 #include "JetEngine.h"
+#include <QFileDialog>
+#include <iostream>
 
 KursovaRemake::KursovaRemake(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+ 
     connect(ui.EngineButton, SIGNAL(clicked()), this, SLOT(pressEngineButton()));
     connect(ui.ICEngine_button, SIGNAL(clicked()), this, SLOT(pressEngineButton()));
     connect(ui.JetEngine_button, SIGNAL(clicked()), this, SLOT(pressEngineButton()));
@@ -27,6 +30,8 @@ KursovaRemake::KursovaRemake(QWidget *parent)
 
     connect(ui.verticalSlider, SIGNAL(valueChanged(int)), this, SLOT(sliderChange()));
 
+    connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(openFileAction()));
+    connect(ui.actionSave, SIGNAL(triggered()), this, SLOT(saveFileAction()));
 
     //member initialization
     enginetype = EngineType::Engine;
@@ -46,31 +51,9 @@ void KursovaRemake::pressReady()
 {
     const std::string temp = ui.lineEdit->text().toStdString();
     
-    if (enginetype == EngineType::Engine)
-    {
-        engines.emplace_back(new Engine{ temp, (unsigned int)ui.spinBox->value()});
-    }
-    else if (enginetype == EngineType::ICEngine)
-    {
-        engines.emplace_back(new ICEngine{ temp, (unsigned int)ui.spinBox->value() });
-    }
-    else if (enginetype == EngineType::JetEngine)
-    {
-        engines.emplace_back(new JetEngine{ temp, (unsigned int)ui.spinBox->value() });
-    }
 
-    ui.tableWidget->setRowCount(ui.tableWidget->rowCount() + 1);
-
-    ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 0,
-        new QTableWidgetItem(engines[engines.size() - 1]->getName()
-            .c_str()));
-
-    ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 1,
-        new QTableWidgetItem(std::to_string(engines[engines.size() - 1]->getPower())
-            .c_str()));
-
-    ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 2,
-        new QTableWidgetItem(engines[engines.size() - 1]->getClassName()));
+    addEngine(temp, enginetype, (unsigned int)ui.spinBox->value());
+    updateTable();
 
     QMessageBox messageBox;
     messageBox.setText("Engine has been created");
@@ -131,11 +114,140 @@ void KursovaRemake::sliderChange()
 
 }
 
+void KursovaRemake::saveFileAction()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save File", "", "File Type (*.dat)");
+
+    if (fileName.isEmpty())
+        return;
+    else
+    {
+        QFile file(fileName);
+        if (!file.open(QIODevice::WriteOnly)) 
+        {
+            QMessageBox::information(this, tr("Unable to save file"),
+                file.errorString());
+            return;
+        }
+        else
+        {
+            QTextStream out(&file);
+            for (int i{ 0 }; i < engines.size(); ++i)
+            {
+                out << engines[i]->getName().c_str() << "," << engines[i]->getPower() << "," << engines[i]->getClassName() << '\n';
+            }
+            file.close();
+        }
+    }
+}
+
+void KursovaRemake::openFileAction()
+{
+    EngineMap engine = openFile();
+    
+    for (auto const& [key, value] : engine)
+    {
+        addEngine(key, value.second, value.first);
+        updateTable();
+    }
+
+}
+
+EngineMap KursovaRemake::openFile()
+{
+    QFile file(QFileDialog::getOpenFileName(this, "Select file", "", "Save files (*.dat)"));
+
+
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, "ErrorMessage", "Couldn't open the file");
+        return {};
+    }
+
+    {
+        qDeleteAll(engines);
+        engines.clear();
+        for (int i{ ui.tableWidget->rowCount() }; i >= 0; --i)
+        {
+            ui.tableWidget->removeRow(i);
+        }
+    }
+
+    QTextStream in(&file);
+    EngineMap engineLF;
+    while (!in.atEnd())
+    {
+        QString temp;
+        in >> temp;
+        QStringList list = temp.split(",");
+        if(list.size() >= 3)
+        {
+            engineLF[list[0].toStdString()] = std::make_pair(list[1].toInt(), toEngineType(list[2].toStdString()));
+        }
+    }
+    
+    file.flush();
+    file.close();
+
+    return engineLF;
+}
+
+inline EngineType KursovaRemake::toEngineType(std::string name) const
+{
+    if (name == "Engine")
+    {
+        return EngineType::Engine;
+    }
+    else if (name == "ICEngine")
+    {
+        return EngineType::ICEngine;
+    }
+    else if (name == "JetEngine")
+    {
+        return EngineType::JetEngine;
+    }
+    else
+    {
+        return EngineType::MAX_ENGINE;
+    }
+}
+
+void KursovaRemake::addEngine(const std::string name, EngineType type, unsigned int value)
+{
+    if (type == EngineType::Engine)
+    {
+        engines.emplace_back(new Engine{ name, value });
+    }
+    else if (type == EngineType::ICEngine)
+    {
+        engines.emplace_back(new ICEngine{ name, value });
+    }
+    else if (type == EngineType::JetEngine)
+    {
+        engines.emplace_back(new JetEngine{ name, value });
+    }
+}
+
+void KursovaRemake::updateTable()
+{
+    ui.tableWidget->setRowCount(ui.tableWidget->rowCount() + 1);
+
+    ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 0,
+        new QTableWidgetItem(engines[engines.size() - 1]->getName()
+            .c_str()));
+
+    ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 1,
+        new QTableWidgetItem(std::to_string(engines[engines.size() - 1]->getPower())
+            .c_str()));
+
+    ui.tableWidget->setItem(ui.tableWidget->rowCount() - 1, 2,
+        new QTableWidgetItem(engines[engines.size() - 1]->getClassName()));
+}
+
 void KursovaRemake::pressEngineButton()
 {
     QPushButton* button = qobject_cast<QPushButton*>(sender());
     QString buttonLabel = button->text();
-
 
     if (buttonLabel.toStdString() == "Engine")
     {

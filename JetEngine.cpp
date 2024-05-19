@@ -2,5 +2,5 @@
 
 const char* JetEngine::getClassName() const
 {
-    return "jetEngine";
+    return "JetEngine";
 }

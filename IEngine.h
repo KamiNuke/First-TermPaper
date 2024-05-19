@@ -1,14 +1,6 @@
 #pragma once
 #include <string>
 
-enum class EngineType
-{
-    Engine,
-    ICEngine,
-    JetEngine,
-
-    MAX_ENGINE
-};
 
 class IEngine
 {

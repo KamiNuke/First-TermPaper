@@ -2,5 +2,5 @@
 
 const char* Engine::getClassName() const
 {
-    return "Engine...";
+    return "Engine";
 }
